@@ -13,15 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('students', function (Blueprint $table) {
+        Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
-            $table->string("name");
-            $table->string("place");
-            $table->string("photo")->nullable();
-            $table->integer("adno");
-            $table->string("dob");
-            $table->integer("class");
+            $table->unsignedBigInteger('student_id');
+            $table->float('amount');
+            $table->integer('interval'); // 0 = monthly, 1 = quarterly, 2 = half yearly, 3 = yearly
+            $table->date('subscibed_on');
             $table->timestamps();
+
+            $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
         });
     }
 
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('students');
+        Schema::dropIfExists('subscriptions');
     }
 };

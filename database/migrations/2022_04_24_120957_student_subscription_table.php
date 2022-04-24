@@ -13,14 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('students', function (Blueprint $table) {
+        Schema::create('student_subscription', function (Blueprint $table) {
             $table->id();
-            $table->string("name");
-            $table->string("place");
-            $table->string("photo")->nullable();
-            $table->integer("adno");
-            $table->string("dob");
-            $table->integer("class");
+            $table->unsignedBigInteger('subscription_id');
+            $table->integer('partially_paid')->default(0);
+            $table->float('amount_paid')->default(0);
+            $table->float('amount_due')->default(0);
+            $table->integer('month');
+            $table->integer('year');
             $table->timestamps();
         });
     }
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('students');
+        Schema::dropIfExists('student_subscription');
     }
 };
