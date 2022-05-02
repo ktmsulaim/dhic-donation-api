@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
-    //
     public function login(Request $request)
     {
         try {
@@ -41,5 +40,23 @@ class LoginController extends Controller
         } catch (\Throwable $th) {
             throw $th;
         }
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->tokens()->delete();
+
+        return response()->json([
+            'success' => true,
+            'data' => 'Successfully logged out'
+        ], 200);
+    }
+
+    public function user(Request $request)
+    {
+        return response()->json([
+            'success' => true,
+            'data' => $request->user()
+        ], 200);
     }
 }
