@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('student_subscription', function (Blueprint $table) {
+        Schema::create('subscription_history', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('subscription_id');
             $table->integer('partially_paid')->default(0);

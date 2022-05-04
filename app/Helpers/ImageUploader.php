@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\Student;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Image;
@@ -20,7 +21,7 @@ class ImageUploader
 
         Storage::disk('public')->put($path . '/photos/thumbnail/'.$fileName, $image);
 
-        // create large image
+        // create medium image
         $image = Image::make($file->getRealPath());
         $image->resize(512, 512, function ($constraint) {
             $constraint->aspectRatio();
@@ -33,15 +34,41 @@ class ImageUploader
 
     public static function delete($path, $fileName)
     {
-        $thumbnail = storage_path($path . '/photos/thumbnail/' . $fileName);
-        $large = storage_path($path . '/photos/medium/' . $fileName);
+        $thumbnail = $path . '/photos/thumbnail/' . $fileName;
+        $medium = $path . '/photos/medium/' . $fileName;
 
         if (Storage::exists($thumbnail)) {
             Storage::delete($thumbnail);
         }
 
-        if (Storage::exists($large)) {
-            Storage::delete($large);
+        if (Storage::exists($medium)) {
+            Storage::delete($medium);
+        }
+    }
+
+    public static function deleteAllUnused($path)
+    {
+        $files = Storage::files($path, true);
+
+        foreach ($files as $file) {
+            $fileName = basename($file);
+            $thumbnail = $path . '/photos/thumbnail/' . $fileName;
+            $medium = $path . '/photos/medium/' . $fileName;
+            $isPhotoConnected = true;
+
+            if($path == 'students') {
+                $isPhotoConnected = Student::where('photo', $fileName)->first();
+            }
+
+            if (!$isPhotoConnected) {
+                if (Storage::exists($thumbnail)) {
+                    Storage::delete($thumbnail);
+                }
+
+                if (Storage::exists($medium)) {
+                    Storage::delete($medium);
+                }
+            }
         }
     }
 }

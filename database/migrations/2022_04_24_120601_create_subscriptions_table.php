@@ -18,7 +18,8 @@ return new class extends Migration
             $table->unsignedBigInteger('student_id');
             $table->float('amount');
             $table->integer('interval'); // 0 = monthly, 1 = quarterly, 2 = half yearly, 3 = yearly
-            $table->date('subscibed_on');
+            $table->date('start_date');
+            $table->date('end_date')->nullable();
             $table->timestamps();
 
             $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');

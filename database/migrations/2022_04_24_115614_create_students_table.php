@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string("name");
             $table->string("place");
             $table->string("photo")->nullable();
-            $table->integer("adno");
+            $table->integer("adno")->unique();
             $table->string("dob");
             $table->integer("class");
             $table->timestamps();

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -16,7 +17,7 @@ class Student extends Model
 
     public function hasPhoto() {
         if($this->photo) {
-            return Storage::disk('public')->exists('students/photos/thumbnail/' . $this->photo);
+            return Storage::exists('students/photos/thumbnail/' . $this->photo);
         }
 
         return false;
@@ -24,7 +25,12 @@ class Student extends Model
 
     public function getPhotoUrl($size = 'thumbnail') {
         if($this->hasPhoto()) {
-            return Storage::disk('public')->url('students/photos/' . $size . '/' . $this->photo);
+            return Storage::url('students/photos/' . $size . '/' . $this->photo);
         }
     }
+
+    public function subscription() {
+        return $this->hasOne(Subscription::class);
+    }
+
 }
