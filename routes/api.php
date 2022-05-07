@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\api\LoginController;
+use App\Http\Controllers\api\ReportController;
 use App\Http\Controllers\api\StudentController;
 use App\Http\Controllers\api\SubscriptionController;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', [LoginController::class, 'user']);
     Route::post('logout', [LoginController::class, 'logout']);
 
-    /*
+/*
 |--------------------------------------------------------------------------
 | Students
 |--------------------------------------------------------------------------
@@ -37,6 +38,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('subscribe', [SubscriptionController::class, 'subscribe']);
     Route::post('subscription/{subscription}/history', [SubscriptionController::class, 'makeHistory']);
+
+/*
+|--------------------------------------------------------------------------
+| Reports
+|--------------------------------------------------------------------------
+|*/
+    Route::get('reports/summary', [ReportController::class, 'summary']);
 });
 
 Route::post("login", [LoginController::class, 'login']);

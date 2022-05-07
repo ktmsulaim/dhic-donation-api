@@ -33,4 +33,9 @@ class Student extends Model
         return $this->hasOne(Subscription::class);
     }
 
+
+    public function scopeActive($query)
+    {
+        $query->where('active', 1);
+    }
 }

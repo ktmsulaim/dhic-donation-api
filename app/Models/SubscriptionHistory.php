@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class SubscriptionHistory extends Model
 {
@@ -17,5 +18,23 @@ class SubscriptionHistory extends Model
 
     public function subscription() {
         return $this->belongsTo(Subscription::class);
+    }
+
+    public static function amountOfTheMonth($type = 'total')
+    {
+        $column = 'amount_due';
+
+        if($type == 'total') {
+            $column = DB::raw('amount_due + amount_paid');
+        } elseif($type == 'due') {
+            $column = 'amount_due';
+        } elseif($type == 'paid') {
+            $column = 'amount_paid';
+        }
+
+        return self::where([
+            'month' => date('n'),
+            'year' => date('Y'),
+        ])->sum($column);
     }
 }
