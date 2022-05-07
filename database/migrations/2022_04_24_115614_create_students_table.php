@@ -21,6 +21,7 @@ return new class extends Migration
             $table->integer("adno")->unique();
             $table->string("dob");
             $table->integer("class");
+            $table->boolean('active')->default(true);
             $table->timestamps();
         });
     }

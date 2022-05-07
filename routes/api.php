@@ -28,9 +28,11 @@ Route::middleware('auth:sanctum')->group(function () {
 |*/
     Route::get('students', [StudentController::class, 'index']);
     Route::get('students/{student}', [StudentController::class, 'show']);
+    Route::post('students/delete-many', [StudentController::class, 'destroyMany']);
     Route::post('students/import', [StudentController::class, 'import']);
     Route::post('students', [StudentController::class, 'store']);
     Route::put('students/{student}', [StudentController::class, 'update']);
+    Route::put('students', [StudentController::class, 'updateMany']);
     Route::delete('students/{student}', [StudentController::class, 'destroy']);
 
     Route::post('subscribe', [SubscriptionController::class, 'subscribe']);

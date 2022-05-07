@@ -12,7 +12,7 @@ class Student extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'photo', 'place', 'dob', 'adno', 'class',
+        'name', 'photo', 'place', 'dob', 'adno', 'class', 'active'
     ];
 
     public function hasPhoto() {

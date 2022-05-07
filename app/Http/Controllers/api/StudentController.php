@@ -72,15 +72,21 @@ class StudentController extends Controller
     public function import(Request $request) {
         try {
             $collection = (new StudentsImport)->toCollection($request->file('file'));
-            
+            $imported = 0;
+
             foreach($collection[0] as $row) {
-                $student = Student::create([
-                    'name' => $row["name"],
-                    'place' => $row["place"],
-                    'dob' => $row["dob"],
-                    'class' => $row["class"],
-                    'adno' => $row["adno"],
-                ]);
+                $student = Student::where('adno', $row['adno'])->first();
+
+                if(!$student) {
+                    $student = Student::create([
+                        'name' => $row["name"],
+                        'place' => $row["place"],
+                        'dob' => $row["dob"],
+                        'class' => $row["class"],
+                        'adno' => $row["adno"],
+                    ]);
+                    $imported++;
+                }
 
                 if(!$student->subscription) {
                     $subscription = $student->subscription()->create([
@@ -96,7 +102,7 @@ class StudentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => count($collection[0]) . " students imported successfully",
+                'data' => $imported . " students imported successfully",
             ], 200);
             
         } catch (\Throwable $th) {
@@ -159,6 +165,35 @@ class StudentController extends Controller
         ], 200);
     }
 
+    public function updateMany(Request $request)
+    {
+        Validator::make($request->only('students'), [
+            'students' => 'required',
+        ], 
+        [
+            'students.required' => 'Students are required',
+        ])->validate();
+
+        $students = $request->students;
+
+        foreach($students as $student) {
+            $student = Student::find($student);
+
+            if($student) {
+                $student->update([
+                    'class' => $request->class,
+                    'active' => $request->active,
+                ]);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => "Students updated successfully",
+        ], 200);
+
+    }
+
     /**
      * Remove the specified resource from storage.
      *
@@ -175,7 +210,31 @@ class StudentController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => null,
+            'data' => "The student has been deleted successfully",
+        ], 204);
+    }
+
+    public function destroyMany(Request $request) {
+        Validator::make($request->only('students'), [
+            'students' => 'required',
+        ], 
+        [
+            'students.required' => 'Students are required',
+        ])->validate();
+
+        $students = $request->students;
+
+        foreach($students as $student) {
+            $student = Student::find($student);
+
+            if($student) {
+                $student->delete();
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => "The students have been deleted successfully",
         ], 204);
     }
 }
