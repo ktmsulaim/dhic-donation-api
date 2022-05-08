@@ -37,7 +37,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('students/{student}', [StudentController::class, 'destroy']);
 
     Route::post('subscribe', [SubscriptionController::class, 'subscribe']);
+    Route::put('subscription/{subscription}', [SubscriptionController::class, 'update']);
     Route::post('subscription/{subscription}/history', [SubscriptionController::class, 'makeHistory']);
+    Route::put('subscription/{subscription}/history', [SubscriptionController::class, 'updateHistory']);
 
 /*
 |--------------------------------------------------------------------------
