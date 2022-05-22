@@ -21,6 +21,7 @@ class StudentResource extends JsonResource
             'dob' => $this->dob,
             'adno' => $this->adno,
             'class' => $this->class,
+            'status' => $this->active,
             'photo' => $this->when($this->hasPhoto(), [
                 'thumbnail' => $this->getPhotoUrl('thumbnail'),
                 'medium' => $this->getPhotoUrl('medium'), 
@@ -35,6 +36,7 @@ class StudentResource extends JsonResource
                 'time' => $this->updated_at->format('h:i:s A'),
                 'timestamp' => $this->updated_at->timestamp,
             ],
+            'subscription' => $this->getHumanReadableSubscription(), 
         ];
     }
 }

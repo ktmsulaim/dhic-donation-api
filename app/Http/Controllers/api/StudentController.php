@@ -36,11 +36,13 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
-        Validator::make($request->all(), [
+        $data = $request->all();
+        
+        Validator::make($data, [
             'name' => 'required',
             'place' => 'required',
             'dob' => 'required',
-            'adno' => 'required|unique:students,adno',
+            'adno' => ['required', 'unique:students,adno'],
             'class' => 'required',
         ],
         [
@@ -48,11 +50,9 @@ class StudentController extends Controller
             'place.required' => 'Place is required',
             'dob.required' => 'Date of birth is required',
             'adno.required' => 'Admission number is required',
+            'adno.unique' => 'Admission number already exists',
             'class.required' => 'Class is required',
         ])->validate();
-
-
-        $data = $request->all();
 
         if($request->hasFile('photo')) {
             $data['photo'] = ImageUploader::upload($request->file('photo'), 'students');

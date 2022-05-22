@@ -4,7 +4,6 @@ use App\Http\Controllers\api\LoginController;
 use App\Http\Controllers\api\ReportController;
 use App\Http\Controllers\api\StudentController;
 use App\Http\Controllers\api\SubscriptionController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*

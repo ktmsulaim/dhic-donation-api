@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\MoneyHelper;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +15,8 @@ class Student extends Model
     protected $fillable = [
         'name', 'photo', 'place', 'dob', 'adno', 'class', 'active'
     ];
+
+    protected $with = ['subscription'];
 
     public function hasPhoto() {
         if($this->photo) {
@@ -37,5 +40,40 @@ class Student extends Model
     public function scopeActive($query)
     {
         $query->where('active', 1);
+    }
+
+    public function getHumanReadableSubscription()
+    {
+        if($this->subscription()->exists()) {
+            $amount = $this->subscription->amount;
+            $subscription = MoneyHelper::format($amount);
+            $interval = $this->subscription->interval;
+
+            if(!$amount > 0) {
+                $subscription = 'No donation';
+            }
+
+            switch ($interval) {
+                case 0:
+                    $subscription .= " / Month";
+                    break;
+                case 1:
+                    $subscription .= " / 3 Months";
+                    break;
+                case 2:
+                    $subscription .= " / 6 Months";
+                    break;
+                case 3:
+                    $subscription .= " / Year";
+                    break;
+                default:
+                    $subscription .= " / " . $interval . " Months";
+                    break;
+            }
+
+            return $subscription;
+        }
+
+        return "Not sponsored";
     }
 }

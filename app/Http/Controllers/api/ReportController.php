@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Helpers\MoneyHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\SubscriptionHistory;
@@ -12,11 +13,31 @@ class ReportController extends Controller
     public function summary(Request $request)
     {
         $data = [
-            'total_students' => Student::count(),
             'students' => Student::active()->count(),
-            'sponsored_amount_of_the_month' => SubscriptionHistory::amountOfTheMonth(),
-            'due_amount_of_the_month' => SubscriptionHistory::amountOfTheMonth('due'),
-            'paid_amount_of_the_month' => SubscriptionHistory::amountOfTheMonth('paid'),
+            'amount_of_the_month' => [
+                'sponsored' => [
+                    'amount' => SubscriptionHistory::amountOfTheMonth(),
+                    'formatted' => MoneyHelper::format(SubscriptionHistory::amountOfTheMonth()),
+                ],
+                'amount_due' => [
+                    'amount' => SubscriptionHistory::amountOfTheMonth('due'),
+                    'formatted' => MoneyHelper::format(SubscriptionHistory::amountOfTheMonth('due')),
+                    'percentage' => SubscriptionHistory::amountOfTheMonth('due') / SubscriptionHistory::amountOfTheMonth() * 100,
+                ],
+                'amount_paid' => [
+                    'amount' => SubscriptionHistory::amountOfTheMonth('paid'),
+                    'formatted' => MoneyHelper::format(SubscriptionHistory::amountOfTheMonth('paid')),
+                    'percentage' => SubscriptionHistory::amountOfTheMonth('paid') / SubscriptionHistory::amountOfTheMonth() * 100,
+                ]
+            ],
+            'amount_last_six_months' => [
+                'amount_due' => [
+                    'amount' => SubscriptionHistory::amountOfLastSixMonths('due'),
+                ],
+                'amount_paid' => [
+                    'amount' => SubscriptionHistory::amountOfLastSixMonths('paid'),
+                ],
+            ]
         ];
 
         return response()->json([
