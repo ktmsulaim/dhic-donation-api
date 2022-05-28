@@ -22,7 +22,10 @@ return new class extends Migration
             $table->integer('month');
             $table->integer('year');
             $table->timestamps();
+            
+            $table->foreign('subscription_id')->references('id')->on('subscriptions')->onDelete('cascade');
         });
+
     }
 
     /**

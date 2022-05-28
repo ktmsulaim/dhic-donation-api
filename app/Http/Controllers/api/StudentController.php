@@ -22,7 +22,13 @@ class StudentController extends Controller
     public function index(Request $request)
     {
         $per_page = $request->per_page ? $request->per_page : 10;
-        $students = Student::paginate($per_page);
+        $q = $request->q ? $request->q : '';
+        $students = Student::where(function($query) use($q){
+            if($q){
+                $query->where('name', 'like', '%'.$q.'%')
+                    ->orWhere('adno', '=', $q);
+            }
+        })->paginate($per_page);
 
         return new StudentCollection($students);
     }
@@ -118,6 +124,7 @@ class StudentController extends Controller
      */
     public function show(Student $student)
     {
+        $student->load('subscription');
         return response()->json([
             'success' => true,
             'data' => new StudentResource($student),
@@ -180,10 +187,15 @@ class StudentController extends Controller
             $student = Student::find($student);
 
             if($student) {
-                $student->update([
-                    'class' => $request->class,
-                    'active' => $request->active,
-                ]);
+                if($request->class > 0) {
+                    $student->class = $request->class;
+                }
+
+                if(!is_null($request->active) && in_array($request->active, [0, 1])) {
+                    $student->active = $request->active;
+                }
+
+                $student->save();
             }
         }
 

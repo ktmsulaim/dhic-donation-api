@@ -36,7 +36,8 @@ class StudentResource extends JsonResource
                 'time' => $this->updated_at->format('h:i:s A'),
                 'timestamp' => $this->updated_at->timestamp,
             ],
-            'subscription' => $this->getHumanReadableSubscription(), 
+            'subscription_summary' => $this->getHumanReadableSubscription(),
+            'subscription' => $this->whenLoaded('subscription', new SubscriptionResource($this->subscription)),
         ];
     }
 }

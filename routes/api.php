@@ -40,6 +40,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('subscription/{subscription}/history', [SubscriptionController::class, 'makeHistory']);
     Route::put('subscription/{subscription}/history', [SubscriptionController::class, 'updateHistory']);
 
+    Route::get('/subscription/{subscription}/history/between-date', [SubscriptionController::class, 'historyBetweenDate']);
+    Route::get('/subscription/{subscription}/history/{year}', [SubscriptionController::class, 'historyByYear']);
+
 /*
 |--------------------------------------------------------------------------
 | Reports

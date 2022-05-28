@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Helpers\MoneyHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\Subscription;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use PhpParser\Node\Stmt\TryCatch;
 
 class SubscriptionController extends Controller
 {
@@ -41,6 +45,8 @@ class SubscriptionController extends Controller
             ]);
         }
 
+        $student->load('subscription');
+        $student->subscription->createHistory();
 
         return response()->json(['data' => $student->subscription, 'success' => true]);
     }
@@ -140,7 +146,45 @@ class SubscriptionController extends Controller
 
             return response()->json(['data' => 'Subscription payment history updated successfully', 'success' => true], 200);
         } catch (\Throwable $th) {
-            return response()->json(['data' => $th->getMessage(), 'success' => false], $th->getCode());
+            return response()->json(['data' => $th->getMessage(), 'success' => false], 400);
+        }
+    }
+
+    public function historyByYear(Subscription $subscription, $year)
+    {
+        $history = $subscription->history()->where('year', $year)->get();
+
+        return response()->json(['data' => $history, 'success' => true]);
+    }
+
+    public function historyBetweenDate(Request $request, Subscription $subscription)
+    {
+        try {
+            Validator::make($request->only('start_date', 'end_date'), [
+                'start_date' => 'required',
+                'end_date' => 'required',    
+            ])->validate();
+
+            $start_date = Carbon::parse($request->start_date);
+            $end_date = Carbon::parse($request->end_date);
+            $period = CarbonPeriod::create($start_date, '1 month', $end_date);
+
+            $history = Collection::make();
+
+            foreach ($period as $date) {
+                $history->push($subscription->history()->where('year', $date->year)->where('month', $date->month)->first());
+            }
+            $count = $history->count();
+            return response()->json(['data' => [
+                'history' => $history,
+                'total' => $history->where('amount_due', '>', 0)->count(),
+                'total_amount' => MoneyHelper::format($count * $subscription->amount), 
+                'total_paid' => MoneyHelper::format($history->sum('amount_paid')),
+                'total_due' => MoneyHelper::format($history->sum('amount_due')),
+            ], 'success' => true]);
+            
+        } catch (\Throwable $th) {
+            return response()->json(['data' => $th->getMessage(), 'success' => false], 400);
         }
     }
 }

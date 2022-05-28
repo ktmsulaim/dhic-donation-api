@@ -12,6 +12,7 @@ class ReportController extends Controller
 {
     public function summary(Request $request)
     {
+        $amount_of_the_month = SubscriptionHistory::amountOfTheMonth();
         $data = [
             'students' => Student::active()->count(),
             'amount_of_the_month' => [
@@ -22,12 +23,12 @@ class ReportController extends Controller
                 'amount_due' => [
                     'amount' => SubscriptionHistory::amountOfTheMonth('due'),
                     'formatted' => MoneyHelper::format(SubscriptionHistory::amountOfTheMonth('due')),
-                    'percentage' => SubscriptionHistory::amountOfTheMonth('due') / SubscriptionHistory::amountOfTheMonth() * 100,
+                    'percentage' => $amount_of_the_month ? SubscriptionHistory::amountOfTheMonth('due') / $amount_of_the_month  * 100 : 0,
                 ],
                 'amount_paid' => [
                     'amount' => SubscriptionHistory::amountOfTheMonth('paid'),
                     'formatted' => MoneyHelper::format(SubscriptionHistory::amountOfTheMonth('paid')),
-                    'percentage' => SubscriptionHistory::amountOfTheMonth('paid') / SubscriptionHistory::amountOfTheMonth() * 100,
+                    'percentage' => $amount_of_the_month ? SubscriptionHistory::amountOfTheMonth('paid') / $amount_of_the_month * 100 : 0,
                 ]
             ],
             'amount_last_six_months' => [
