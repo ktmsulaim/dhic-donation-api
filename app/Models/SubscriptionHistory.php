@@ -64,4 +64,20 @@ class SubscriptionHistory extends Model
         
         return $data;
     }
+
+    public static function amountByClass($class, $year, $month, $status)
+    {
+        if(!in_array($status, ['due', 'paid', 'total'])) {
+            $status = 'due';
+        }
+
+        $q = DB::table('subscription_history')
+                ->join('subscriptions', 'subscriptions.id', '=', 'subscription_history.subscription_id')
+                ->join('students', 'students.id', '=', 'subscriptions.student_id')
+                ->where('students.class', $class)
+                ->where('subscription_history.year', $year)
+                ->where('subscription_history.month', $month);
+
+        return $q->sum('subscription_history.amount_' . $status);
+    }
 }

@@ -36,6 +36,11 @@ class Student extends Model
         return $this->hasOne(Subscription::class);
     }
 
+    public function history()
+    {
+        return $this->hasManyThrough(SubscriptionHistory::class, Subscription::class);
+    }
+
 
     public function scopeActive($query)
     {
