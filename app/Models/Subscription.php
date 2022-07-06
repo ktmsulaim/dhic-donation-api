@@ -15,7 +15,7 @@ class Subscription extends Model
         'student_id', 'amount', 'interval', 'start_date', 'end_date',
     ];
 
-    private $intervals = [
+    public $intervals = [
         0 => '1 month',
         1 => '3 months',
         2 => '6 months',

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Helpers\MoneyHelper;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -80,5 +81,35 @@ class Student extends Model
         }
 
         return "Not sponsored";
+    }
+
+    public function getDueTill($month = null, $year = null)
+    {
+        if(!$this->subscription()->exists()) return 0;
+
+        if(!$month) {
+            $month = date('m');
+        }
+
+        if(!$year) {
+            $year = date('Y');
+        }
+
+        $due = 0;
+
+        $start_date = Carbon::parse($this->subscription->start_date);
+        $end_date = Carbon::create($year, $month, 1)->endOfMonth();
+        $interval = $this->subscription->intervals[$this->subscription->interval];
+        $periods = CarbonPeriod::create($start_date, $interval, $end_date);
+
+        foreach ($periods as $period) {
+            $history = $this->history()->where('month', $period->month)->where('year', $period->year)->first();
+
+            if($history) {
+                $due += $history->amount_due;
+            }
+        }
+
+        return $due;
     }
 }

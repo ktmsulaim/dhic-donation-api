@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Exports\DueByClassExport;
 use App\Helpers\MoneyHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
@@ -9,6 +10,8 @@ use App\Models\Subscription;
 use App\Models\SubscriptionHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
+use PhpParser\Node\Stmt\TryCatch;
 
 class ReportController extends Controller
 {
@@ -141,6 +144,106 @@ class ReportController extends Controller
                 'success' => true,
                 'data' => $data,
             ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function due(Request $request)
+    {
+        try {
+            Validator::make($request->all(), [
+                'class' => 'required',
+                'year' => 'required',
+                'month' => 'required'
+            ])->validate();
+
+            $class = $request->get('class');
+            $year = $request->get('year');
+            $month = $request->get('month');
+
+            $data = [];
+
+            $students = Student::active()->where('class', $class)->get();
+
+            foreach($students as $student) {
+                array_push($data, [
+                    'name' => $student->name,
+                    'adno' => $student->adno, 
+                    'donation' => $student->getHumanReadableSubscription(),
+                    'amount_due' => $student->getDueTill($month, $year),
+                    'amount_due_formatted' => MoneyHelper::format($student->getDueTill($month, $year)),
+                ]);
+            }
+
+            array_push($data, [
+                'name' => 'Total',
+                'adno' => '',
+                'donation' => '',
+                'amount_due' => Collect($data)->sum('amount_due'),
+                'amount_due_formatted' => MoneyHelper::format(Collect($data)->sum('amount_due'))
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+    
+    public function exportDue(Request $request)
+    {
+        try {
+            Validator::make($request->all(), [
+                'class' => 'required',
+                'year' => 'required',
+                'month' => 'required'
+            ])->validate();
+
+            $class = $request->get('class');
+            $year = $request->get('year');
+            $month = $request->get('month');
+
+            $data = [];
+
+            $students = Student::active()->where('class', $class)->get();
+
+            foreach($students as $student) {
+                array_push($data, [
+                    'name' => $student->name,
+                    'adno' => $student->adno, 
+                    'donation' => $student->getHumanReadableSubscription(),
+                    'amount_due' => $student->getDueTill($month, $year),
+                    'amount_due_formatted' => MoneyHelper::format($student->getDueTill($month, $year)),
+                ]);
+            }
+
+            array_push($data, [
+                'name' => 'Total',
+                'adno' => '',
+                'donation' => '',
+                'amount_due' => Collect($data)->sum('amount_due'),
+                'amount_due_formatted' => MoneyHelper::format(Collect($data)->sum('amount_due'))
+            ]);
+
+            $data = collect($data)->map(function($item) {
+                return [
+                    'Name' => $item['name'],
+                    'Admission No' => $item['adno'],
+                    'Donation' => $item['donation'],
+                    'Amount Due' => $item['amount_due_formatted'],
+                ];
+            });
+
+            return Excel::download(new DueByClassExport($data), 'Due_Class_'.$class.'_'.date('d_m_Y').'.xlsx');
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,

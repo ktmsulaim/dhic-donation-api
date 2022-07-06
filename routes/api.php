@@ -51,6 +51,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('reports/summary', [ReportController::class, 'summary']);
     Route::get('report/class-wise', [ReportController::class, 'classWise']);
     Route::get('report/monthly', [ReportController::class, 'monthly']);
+    Route::get('report/due', [ReportController::class, 'due']);
+    Route::post('report/due', [ReportController::class, 'exportDue']);
 });
 
 Route::post("login", [LoginController::class, 'login']);
